@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sidebar with Image Gallery</title>
+<style>
+    /* Import IBM Plex Mono font */
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&display=swap');
+
+    body {
+        display: flex;
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    /* Left Sidebar */
+    .sidebar {
+        height: 100vh;
+        width: 200px;
+        background-color: white;
+        padding-top: 20px;
+        position: fixed;
+        border-right: 1px solid #ddd;
+        text-align: center;
+    }
+
+    /* Logo styling with continuous rotation */
+    .logo {
+        width: 90px;
+        height: 90px;
+        margin-bottom: 30px;
+        border-radius: 50%;
+        animation: spin 8s linear infinite;
+    }
+
+    /* Keyframes for rotation */
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Sidebar links */
+    .sidebar a {
+        font-family: 'IBM Plex Mono', monospace;
+        text-decoration: none;
+        font-size: 18px;
+        color: #333;
+        display: block;
+        padding: 4px 0;
+        transition: color 0.3s ease;
+    }
+
+    /* Add space before DESIGN */
+    .sidebar a.design-link {
+        margin-top: 20px;
+    }
+
+    /* Smaller, gray CONTACT link */
+    .sidebar a.contact-link {
+        margin-top: 20px;
+        font-size: 14px;
+        color: #888;
+    }
+
+    /* Hover effects with unique colors */
+    .sidebar a[href="#people"]:hover { color: #e74c3c; }
+    .sidebar a[href="#objects"]:hover { color: #27ae60; }
+    .sidebar a[href="#places"]:hover { color: #2980b9; }
+    .sidebar a[href="#design"]:hover { color: #8e44ad; }
+    .sidebar a[href="#contact"]:hover { color: #16a085; }
+
+    /* Gallery section */
+    .gallery {
+        margin-left: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        width: calc(100% - 200px);
+        background-color: #f4f4f4;
+        overflow: hidden;
+        position: relative;
+        text-align: center;
+    }
+
+    /* Gallery images */
+    .gallery img {
+        max-width: 80%;
+        max-height: 80%;
+        display: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+    }
+
+    .gallery img.active {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Navigation buttons */
+    .nav-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        padding: 10px;
+        font-size: 20px;
+        cursor: pointer;
+        border-radius: 50%;
+    }
+
+    .nav-button.left {
+        left: 20px;
+    }
+
+    .nav-button.right {
+        right: 20px;
+    }
+
+    /* Contact info styling - business card */
+    .contact-info {
+        text-align: center;
+        width: 300px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        color: #333;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .contact-info h1 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .contact-info p {
+        font-size: 1em;
+        color: #333;
+    }
+
+    .contact-info a {
+        color: #333;
+        text-decoration: none;
+    }
+
+    /* Blurred text effect for phone number */
+    .blurred-text {
+        filter: blur(3px);
+    }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+    <a href="#people" onclick="loadGallery('people')">
+        <img src="https://i.imgur.com/YXah2ce.jpg" alt="Logo" class="logo">
+    </a>
+    <a href="#people" onclick="loadGallery('people')">PEOPLE</a>
+    <a href="#objects" onclick="loadGallery('objects')">OBJECTS</a>
+    <a href="#places" onclick="loadGallery('places')">PLACES</a>
+    <a href="#design" class="design-link" onclick="loadGallery('design')">DESIGN</a>
+    <a href="#contact" class="contact-link" onclick="loadGallery('contact')">CONTACT</a>
+</div>
+
+<div class="gallery" id="gallery"></div>
+
+<script>
+    const galleries = {
+        people: [
+            'https://picsum.photos/800/600?random=1',
+            'https://picsum.photos/800/600?random=2',
+            'https://picsum.photos/800/600?random=3'
+        ],
+        objects: [
+            'https://picsum.photos/800/600?random=4',
+            'https://picsum.photos/800/600?random=5',
+            'https://picsum.photos/800/600?random=6'
+        ],
+        places: [
+            'https://picsum.photos/800/600?random=7',
+            'https://picsum.photos/800/600?random=8',
+            'https://picsum.photos/800/600?random=9'
+        ],
+        design: [
+            'https://picsum.photos/800/600?random=10',
+            'https://picsum.photos/800/600?random=11',
+            'https://picsum.photos/800/600?random=12'
+        ]
+    };
+
+    let currentImageIndex = 0;
+    let currentGallery = galleries.people;
+
+    function loadGallery(galleryName) {
+        const galleryElement = document.getElementById('gallery');
+        if (galleryName === 'contact') {
+            galleryElement.innerHTML = `
+                <div class="contact-info">
+                    <h1>Matias Munoz</h1>
+                    <p>Email: <a href="mailto:matiasmunozonate@gmail.com?subject=Hello Matias">matiasmunozonate@gmail.com</a></p>
+                    <p>Phone: 438-<span class="blurred-text">843-0493</span></p>
+                </div>
+            `;
+        } else {
+            currentGallery = galleries[galleryName];
+            currentImageIndex = 0;
+            galleryElement.innerHTML = `
+                <button class="nav-button left" onclick="prevImage()">&#10094;</button>
+                ${currentGallery.map((imgSrc, index) => `
+                    <img src="${imgSrc}" class="gallery-image ${index === 0 ? 'active' : ''}" alt="Gallery Image ${index + 1}">
+                `).join('')}
+                <button class="nav-button right" onclick="nextImage()">&#10095;</button>
+            `;
+        }
+    }
+
+    function showImage(index) {
+        const galleryImages = document.querySelectorAll('.gallery-image');
+        galleryImages.forEach((img, i) => {
+            img.classList.toggle('active', i === index);
+        });
+    }
+
+    function nextImage() {
+        currentImageIndex = (currentImageIndex + 1) % currentGallery.length;
+        showImage(currentImageIndex);
+    }
+
+    function prevImage() {
+        currentImageIndex = (currentImageIndex - 1 + currentGallery.length) % currentGallery.length;
+        showImage(currentImageIndex);
+    }
+
+    window.onload = function() {
+        loadGallery('people');
+    };
+</script>
+
+</body>
+</html>
